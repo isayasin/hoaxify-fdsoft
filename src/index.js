@@ -5,11 +5,15 @@ import './index.css';
 import UserSignupPage from './pages/userSignupPage';
 import './bootstrap-override.scss';
 import reportWebVitals from './reportWebVitals';
+import './i18n';
+import LoginPage from "./pages/loginPage";
+
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <UserSignupPage />
+    <LoginPage/>
   </React.StrictMode>
 );
 

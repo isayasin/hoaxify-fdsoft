@@ -1,9 +1,11 @@
 import React from "react";
 //import axios from "axios";
-import { signup} from "../api/apiCalls";
+import {signup, changeLanguage} from "../api/apiCalls";
 import Input from "../components/Input";
 import InputPass from "../components/InputPass";
 import Button from "../components/Button";
+import { withTranslation} from 'react-i18next';
+
 
 class UserSignupPage extends React.Component{
 
@@ -17,14 +19,15 @@ class UserSignupPage extends React.Component{
     };
 
     onChange = event => {
+        const {t} = this.props;  //Bu 3 satır object contruction'a örnek
         const {name,value} = event.target;
         const errors = {...this.state.errors};
         errors[name] = undefined;
         if(name=== 'password' || name === 'passwordRepeat'){
             if(name==='password' && value !== this.state.passwordRepeat){
-                errors.passwordRepeat = 'Password mismatch';
+                errors.passwordRepeat = t('Password mismatch');
             } else if (name === 'passwordRepeat' && value !== this.state.password){
-                errors.passwordRepeat = 'Password mismatch';
+                errors.passwordRepeat = t('Password mismatch');
             } else {
                 errors.passwordRepeat = undefined;
             }
@@ -57,7 +60,6 @@ class UserSignupPage extends React.Component{
         }
 
         this.setState({pendingApiCall: false});
-
         /*signup(body)
             .then(response => {
                 this.setState({pendingApiCall: false});
@@ -88,44 +90,69 @@ class UserSignupPage extends React.Component{
     //     });
     // };
 
+    onChangeLanguage = language => {
+        const { i18n } = this.props;
+        i18n.changeLanguage(language);
+        changeLanguage(language);
+    }
+
     render() {
-    const {pendingApiCall,errors} = this.state;
-    const {username,displayName,password,passwordRepeat} = errors;
-    return(
-        <div className="container">
-            <form>
-                <h1 className="text-center"> Sign Up</h1>
-                <Input name="username" label="Username" error={username} onChange={this.onChange} />
-                {/*<div className="mb-3">
+        const {t} = this.props;
+        const {pendingApiCall,errors} = this.state;
+        const {username,displayName,password,passwordRepeat} = errors;
+        return(
+            <div className="container">
+                <form>
+                    <h1 className="text-center"> {t("Sign Up")}</h1>
+                    <Input name="username" label={t("Username")} error={username} onChange={this.onChange} />
+                    {/*<div className="mb-3">
                         <label className="form-label">Username</label>
                         <input className={username ? "form-control is-invalid" : "form-control"} autoComplete="none" name="username" onChange={this.onChange} />
                         <div className="invalid-feedback">{username}</div>
                     </div>*/}
-                <Input name="displayName" label="Display Name" error={displayName} onChange={this.onChange} />
-                {/*<div className="mb-3">
+                    <Input name="displayName" label={t("Display Name")} error={displayName} onChange={this.onChange} />
+                    {/*<div className="mb-3">
                     <label>Display Name</label>
                     <input className={displayName ? "form-control is-invalid" : "form-control"} autoComplete="none" name="displayName" onChange={this.onChange}/>
                     <div className="invalid-feedback">{displayName}</div>
                 </div>*/}
-                <InputPass name="password" label="Password" error={password} onChange={this.onChange}/>
-                {/*<div className="mb-3">
+                    <InputPass name="password" label={t("Password")} error={password} onChange={this.onChange}/>
+                    {/*<div className="mb-3">
                     <label>Password</label>
                     <input className="form-control" name="password" onChange={this.onChange} type="password"/>
                 </div>*/}
-                <InputPass name="passwordRepeat" label="Password Repeat" error={passwordRepeat} onChange={this.onChange}/>
-                {/*<div className="mb-3">
+                    <InputPass name="passwordRepeat" label={t("Password Repeat")} error={passwordRepeat} onChange={this.onChange}/>
+                    {/*<div className="mb-3">
                     <label>Password Repeat</label>
                     <input className="form-control" name="passwordRepeat" onChange={this.onChange} type="password"/>
                 </div>*/}
-                <Button label="Sign Up" onClick={this.onClickSignUp} disabled={pendingApiCall || passwordRepeat !== undefined} pending={pendingApiCall}/>
-                {/*<div className="text-center">
+                    <Button label={t("Sign Up")} onClick={this.onClickSignUp} disabled={pendingApiCall || passwordRepeat !== undefined} pending={pendingApiCall}/>
+                    {/*<div className="text-center">
                     <button className="btn btn-primary" onClick={this.onClickSignUp} disabled={pendingApiCall || passwordRepeat !== undefined}>
                         {pendingApiCall && <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"> </span>}Sign up</button>
                 </div>*/}
-            </form>
-        </div>
-        );
+                    <div>
+                        <img
+                            src="https://flagcdn.com/h40/tr.png"
+                            srcSet="https://flagcdn.com/h80/tr.png 2x,https://flagcdn.com/h120/tr.png 3x"
+                            height="24"
+                            alt="Turkey"
+                            onClick={() => this.onChangeLanguage('tr')}
+                            style={{cursor: 'pointer'}}/>
+                        <img
+                            src="https://flagcdn.com/h24/us.png"
+                            srcSet="https://flagcdn.com/h48/us.png 2x"
+                            height="24"
+                            alt="United States"
+                            onClick={() => this.onChangeLanguage('en')}
+                            style={{cursor: 'pointer'}}/>
+                    </div>
+                </form>
+            </div>
+            );
+        }
     }
-}
+// High order Component uygulamsı ile UserSignupPage'i translation ile mixledik.
+const UserSignupPageWithTranslation = withTranslation()(UserSignupPage);
 
-export default UserSignupPage;
+export default UserSignupPageWithTranslation;
