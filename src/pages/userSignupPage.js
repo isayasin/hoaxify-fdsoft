@@ -90,11 +90,11 @@ class UserSignupPage extends React.Component{
     //     });
     // };
 
-    onChangeLanguage = language => {
+    /*onChangeLanguage = language => {
         const { i18n } = this.props;
         i18n.changeLanguage(language);
         changeLanguage(language);
-    }
+    }*/
 
     render() {
         const {t} = this.props;
@@ -131,7 +131,7 @@ class UserSignupPage extends React.Component{
                     <button className="btn btn-primary" onClick={this.onClickSignUp} disabled={pendingApiCall || passwordRepeat !== undefined}>
                         {pendingApiCall && <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"> </span>}Sign up</button>
                 </div>*/}
-                    <div>
+                    {/*<div>
                         <img
                             src="https://flagcdn.com/h40/tr.png"
                             srcSet="https://flagcdn.com/h80/tr.png 2x,https://flagcdn.com/h120/tr.png 3x"
@@ -146,7 +146,7 @@ class UserSignupPage extends React.Component{
                             alt="United States"
                             onClick={() => this.onChangeLanguage('en')}
                             style={{cursor: 'pointer'}}/>
-                    </div>
+                    </div>*/}
                 </form>
             </div>
             );

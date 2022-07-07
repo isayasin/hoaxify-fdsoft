@@ -1,58 +1,105 @@
 import React from "react";
 
-import {login,changeLanguage} from "../api/apiCalls";
+import {login} from "../api/apiCalls";
 import {withTranslation} from 'react-i18next';
+import Input from "../components/Input";
+import InputPass from "../components/InputPass";
+import Button from "../components/Button";
+import axios from "axios";
 
 class LoginPage extends React.Component{
     state = {
         username: null,
         password: null,
-        errors: {}
+        error: null,
+        pendingApiCall: false
+    }
+
+    componentDidMount() {
+        axios.interceptors.request.use(request =>{
+          this.setState({pendingApiCall: true});
+          return request;
+        });
+
+        axios.interceptors.response.use(
+            response => {
+                this.setState({pendingApiCall: false});
+                return response;
+            },
+            error => {
+                this.setState({pendingApiCall:false});
+                throw error;
+            }
+        );
     }
 
     onChange = event => {
         const {name,value} = event.target;
-        const errors = {...this.state.errors};
         this.setState({
             [name]:value,
-            errors
+            error: null
         });
     };
 
-    onClikLogin = event => {
+    onClickLogin = async event => {
+        event.preventDefault();
+        const {username, password} = this.state;
+        const creds = {
+            username,
+            password
+        };
+        this.setState({
+            error: null
+        });
+        try {
+            await login(creds)
+        } catch (apiError) {
+            this.setState({
+                error: apiError.response.data.message
+            });
+        }
+    };
 
-    }
-
-    onChangeLanguage = language => {
+    /*onChangeLanguage = language => {
         const { i18n } = this.props;
         i18n.changeLanguage(language);
         changeLanguage(language);
-    }
+    }*/
 
     render(){
         const {t} = this.props;
-        const {errors} = this.state;
-        const {username,password} = errors;
+        const {error,username,password, pendingApiCall} = this.state;
+        //const {username,password} = error;
+        const buttonEnabled = username && password;
         return(
+
           <div className="container">
               <form>
                   <h1 className="text-center">{t("Login")}</h1>
-                  <div className="mb-3">
+
+                  <Input name="username" label={t("Username")} error={undefined} onChange={this.onChange} />
+                  {/*<div className="mb-3">
                       <label className="form-label">{t("Username")}</label>
                       <input className={username ? "form-control is-invalid" : "form-control"} autoComplete="none"
                              name="username" onChange={this.onChange}/>
                       <div className="invalid-feedback" >{username}</div>
-                  </div>
-                  <div className="mb-3">
+                  </div>*/}
+
+                  <InputPass name="password" label={t("Password")} error={undefined} onChange={this.onChange}/>
+                  {/*<div className="mb-3">
                       <label className="form-label">{t("Password")}</label>
                       <input className={password ? "form-control is-invalid" : "form-control"}
                              name="password" onChange={this.onChange} type="password"/>
                       <div className="invalid-feedback" >{password}</div>
-                  </div>
-                  <div className="text-center">
-                      <button className="btn btn-primary" onClick={this.onClickLogin}>{t("Login")}</button>
-                  </div>
-                  <div>
+                  </div>*/}
+                  {error &&<div className="alert alert-danger">{error} </div>}
+
+                  <Button label={t("Login")} onClick={this.onClickLogin} disabled={!buttonEnabled || pendingApiCall} pending={pendingApiCall} />
+                  {/*<div className="text-center" >
+                      <button className="btn btn-primary" onClick={this.onClickLogin} disabled={!buttonEnabled}>{t("Login")}</button>
+                  </div>*/}
+
+                  {/*<div>
                       <img
                           src="https://flagcdn.com/h40/tr.png"
                           srcSet="https://flagcdn.com/h80/tr.png 2x,https://flagcdn.com/h120/tr.png 3x"
@@ -67,7 +114,7 @@ class LoginPage extends React.Component{
                           alt="United States"
                           onClick={() => this.onChangeLanguage('en')}
                           style={{cursor: 'pointer'}}/>
-                  </div>
+                  </div>*/}
               </form>
           </div>
         );
