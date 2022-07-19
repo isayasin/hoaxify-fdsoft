@@ -1,20 +1,20 @@
-import React from "react";
+import React, {Component} from "react";
 //import axios from "axios";
-import {signup, changeLanguage} from "../api/apiCalls";
+import {signup} from "../api/apiCalls";
 import Input from "../components/Input";
 import InputPass from "../components/InputPass";
 import Button from "../components/Button";
 import { withTranslation} from 'react-i18next';
+import {withApiProgress} from "../shared/ApiProgress";
 
 
-class UserSignupPage extends React.Component{
+class UserSignupPage extends Component{
 
     state = {
         username: null,
         displayName: null,
         password: null,
         passwordRepeat: null,
-        pendingApiCall: false,
         errors: {}
     };
 
@@ -49,7 +49,7 @@ class UserSignupPage extends React.Component{
             displayName,
             password
         };
-        this.setState({pendingApiCall: true});
+        //this.setState({pendingApiCall: true});
 
         try{
             const response = await signup(body);
@@ -59,7 +59,7 @@ class UserSignupPage extends React.Component{
             }
         }
 
-        this.setState({pendingApiCall: false});
+        //this.setState({pendingApiCall: false});
         /*signup(body)
             .then(response => {
                 this.setState({pendingApiCall: false});
@@ -97,9 +97,9 @@ class UserSignupPage extends React.Component{
     }*/
 
     render() {
-        const {t} = this.props;
-        const {pendingApiCall,errors} = this.state;
-        const {username,displayName,password,passwordRepeat} = errors;
+        const {t, pendingApiCall} = this.props;
+        const {errors} = this.state;
+        const {username, displayName, password, passwordRepeat} = errors;
         return(
             <div className="container">
                 <form>
@@ -126,7 +126,11 @@ class UserSignupPage extends React.Component{
                     <label>Password Repeat</label>
                     <input className="form-control" name="passwordRepeat" onChange={this.onChange} type="password"/>
                 </div>*/}
-                    <Button label={t("Sign Up")} onClick={this.onClickSignUp} disabled={pendingApiCall || passwordRepeat !== undefined} pending={pendingApiCall}/>
+                    <Button
+                        label={t("Sign Up")}
+                        onClick={this.onClickSignUp}
+                        disabled={pendingApiCall || passwordRepeat !== undefined}
+                        pending={pendingApiCall}/>
                     {/*<div className="text-center">
                     <button className="btn btn-primary" onClick={this.onClickSignUp} disabled={pendingApiCall || passwordRepeat !== undefined}>
                         {pendingApiCall && <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"> </span>}Sign up</button>
@@ -153,6 +157,7 @@ class UserSignupPage extends React.Component{
         }
     }
 // High order Component uygulamsı ile UserSignupPage'i translation ile mixledik.
-const UserSignupPageWithTranslation = withTranslation()(UserSignupPage);
+const UserSignupPageWithApiProgress = withApiProgress(UserSignupPage, '/api/1.0/users')
+const UserSignupPageWithTranslation = withTranslation()(UserSignupPageWithApiProgress);
 
 export default UserSignupPageWithTranslation;

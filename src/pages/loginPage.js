@@ -1,4 +1,4 @@
-import React from "react";
+import React,{Component} from "react";
 
 import {login} from "../api/apiCalls";
 import {withTranslation} from 'react-i18next';
@@ -6,31 +6,13 @@ import Input from "../components/Input";
 import InputPass from "../components/InputPass";
 import Button from "../components/Button";
 import axios from "axios";
+import {withApiProgress} from "../shared/ApiProgress";
 
-class LoginPage extends React.Component{
+class LoginPage extends Component{
     state = {
         username: null,
         password: null,
-        error: null,
-        pendingApiCall: false
-    }
-
-    componentDidMount() {
-        axios.interceptors.request.use(request =>{
-          this.setState({pendingApiCall: true});
-          return request;
-        });
-
-        axios.interceptors.response.use(
-            response => {
-                this.setState({pendingApiCall: false});
-                return response;
-            },
-            error => {
-                this.setState({pendingApiCall:false});
-                throw error;
-            }
-        );
+        error: null
     }
 
     onChange = event => {
@@ -67,8 +49,8 @@ class LoginPage extends React.Component{
     }*/
 
     render(){
-        const {t} = this.props;
-        const {error,username,password, pendingApiCall} = this.state;
+        const {t, pendingApiCall} = this.props;
+        const {error,username,password} = this.state;
         //const {username,password} = error;
         const buttonEnabled = username && password;
         return(
@@ -122,4 +104,5 @@ class LoginPage extends React.Component{
 }
 
 const LoginPageWithTranslation = withTranslation()(LoginPage);
-export default LoginPageWithTranslation;
+const LoginPageWithApiProgress = withApiProgress(LoginPageWithTranslation, '/api/1.0/users' )
+export default LoginPageWithApiProgress;
