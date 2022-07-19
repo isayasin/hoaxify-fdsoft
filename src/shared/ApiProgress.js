@@ -14,7 +14,7 @@ export function withApiProgress(WrappedComponent, apiPath){
         };
 
         componentDidMount() {
-            axios.interceptors.request.use(
+            this.requestInterceptor = axios.interceptors.request.use(
                 request =>{
                     this.updateApiCallFor(request.url,false);
                     /*if(request.url === this.props.path ){
@@ -23,7 +23,7 @@ export function withApiProgress(WrappedComponent, apiPath){
                     return request;
                 });
 
-            axios.interceptors.response.use(
+            this.responseInterceptor = axios.interceptors.response.use(
                 response => {
                     this.updateApiCallFor(response.config.url,false);
                     /*if (response.config.url === this.props.path ){
@@ -39,6 +39,11 @@ export function withApiProgress(WrappedComponent, apiPath){
                     throw error;
                 }
             );
+        }
+
+        componentWillUnmount() {
+            axios.interceptors.request.eject(this.requestInterceptor);
+            axios.interceptors.response.eject(this.responseInterceptor);
         }
 
         updateApiCallFor = (url, inProgress) => {
