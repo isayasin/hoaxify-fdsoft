@@ -2,16 +2,20 @@ import React, {Component} from 'react';
 import kazakder from '../kazakder.png';
 import {Link} from "react-router-dom";
 import {withTranslation} from 'react-i18next';
-import {Authentication} from "../shared/AuthenticationContext";
+import {connect} from "react-redux";
+import {logoutSuccess} from "../redux/authActions";
+
+//import {Authentication} from "../shared/AuthenticationContext";
 
 class TopBar extends Component {
+    // static contextType = Authentication;
 
-    static contextType = Authentication;
+    // onClickLogout = () => {
+    //     this.props.dispatch(logoutSuccess());
+    // };
 
     render() {
-        const { t } = this.props;
-        const { state, onLogoutSuccess} = this.context;
-        const { isLoggedIn, username} = state;
+        const {t, username, isLoggedIn, onLogoutSuccess} = this.props;
         let links = (
             <ul className="navbar-nav ml-auto">
                 <li>
@@ -35,7 +39,8 @@ class TopBar extends Component {
                             {username}
                         </Link>
                     </li>
-                    <li className="nav-link" onClick={onLogoutSuccess} style={{cursor: 'pointer'}}>
+                    <li className="nav-link" onClick={onLogoutSuccess}
+                        style={{cursor: 'pointer'}}>
                         {t('Logout')}
                     </li>
                 </ul>
@@ -53,8 +58,24 @@ class TopBar extends Component {
                 </nav>
             </div>
         );
-        }
+    }
 }
 
+
 const TopBarWithTranslation = withTranslation()(TopBar);
-export default TopBarWithTranslation;
+
+const mapStateToProps = (store) => {
+    return {
+        isLoggedIn: store.isLoggedIn,
+        username: store.username
+    };
+};
+
+const mapDispatchToProps = dispatch => {
+    return {
+        onLogoutSuccess: () => dispatch(logoutSuccess())
+
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(TopBarWithTranslation);
