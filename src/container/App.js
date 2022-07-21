@@ -6,29 +6,52 @@ import HomePage from "../pages/HomePage";
 import UserPage from "../pages/UserPage";
 import {HashRouter as Router, Redirect, Route, Switch} from 'react-router-dom';
 import TopBar from "../components/TopBar";
+import React, {Component} from "react";
+import userPage from "../pages/UserPage";
+import {Authentication} from "../shared/AuthenticationContext";
 
-function App() {
-  return (
-        <div>
+
+class App extends Component {
+
+    static contextType = Authentication;
+
+    render() {
+        const isLoggedIn = this.context.state.isLoggedIn;
+        //const username = undefined;
+        //const {isLoggedIn, username} = this.state;
+
+        return (<div>
             <Router>
                 <TopBar/>
                 <Switch>
-                    <Route exact path="/" component={HomePage} />
-                    <Route path="/login" component={LoginPage} />
+                    <Route exact path="/" component={HomePage}/>
+                    {!isLoggedIn && (<Route path="/login" component={LoginPage}
+                        /*component={props => {
+                            return <LoginPage {...props} onLoginSuccess={this.onLoginSuccess}/>;
+                        }}*/
+                        /*component={function (reactRouterProps){
+                            return <LoginPage {... reactRouterProps} />;
+                        }}*/
+                    />)}
                     <Route path="/signup" component={UserSignupPage}/>
-                    <Route path="/user/:username" component={UserPage}/>
-                    <Redirect to="/" />
+                    <Route
+                        path="/user/:username" component={UserPage}
+                        /*component={props => {
+                            return <UserPage {...props} username={username}/>;
+                        }}*/
+                    />
+                    <Redirect to="/"/>
                 </Switch>
             </Router>
             {/*<div className="col">
                     <LoginPage/>
-            </div>
-            <div className="col">
+                </div>
+                <div className="col">
                     <UserSignupPage/>
-            </div>*/}
+                </div>*/}
             <LanguageSelector/>
-        </div>
-  );
+        </div>);
+    }
 }
 
 export default App;

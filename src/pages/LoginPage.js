@@ -5,10 +5,13 @@ import {withTranslation} from 'react-i18next';
 import Input from "../components/Input";
 import InputPass from "../components/InputPass";
 import Button from "../components/Button";
-import axios from "axios";
 import {withApiProgress} from "../shared/ApiProgress";
+import {Authentication} from "../shared/AuthenticationContext";
 
 class LoginPage extends Component{
+
+    static contextType = Authentication;
+
     state = {
         username: null,
         password: null,
@@ -23,9 +26,12 @@ class LoginPage extends Component{
         });
     };
 
+
+
     onClickLogin = async event => {
         event.preventDefault();
         const {username, password} = this.state;
+        const {onLoginSuccess} = this.context;
         const creds = {
             username,
             password
@@ -37,8 +43,14 @@ class LoginPage extends Component{
             error: null
         });
         try {
-            await login(creds);
+            const response = await login(creds);
             push('/');
+
+            const authState = {
+                ...response.data,
+                password
+            }
+            onLoginSuccess(authState);
         } catch (apiError) {
             this.setState({
                 error: apiError.response.data.message
