@@ -4,11 +4,13 @@ import {signup} from "../api/apiCalls";
 import Input from "../components/Input";
 import InputPass from "../components/InputPass";
 import Button from "../components/Button";
-import { withTranslation} from 'react-i18next';
+import {withTranslation} from 'react-i18next';
 import {withApiProgress} from "../shared/ApiProgress";
+import {connect} from "react-redux";
+import {signupHandler} from "../redux/authActions";
 
 
-class UserSignupPage extends Component{
+class UserSignupPage extends Component {
 
     state = {
         username: null,
@@ -20,13 +22,13 @@ class UserSignupPage extends Component{
 
     onChange = event => {
         const {t} = this.props;  //Bu 3 satır object contruction'a örnek
-        const {name,value} = event.target;
+        const {name, value} = event.target;
         const errors = {...this.state.errors};
         errors[name] = undefined;
-        if(name=== 'password' || name === 'passwordRepeat'){
-            if(name==='password' && value !== this.state.passwordRepeat){
+        if (name === 'password' || name === 'passwordRepeat') {
+            if (name === 'password' && value !== this.state.passwordRepeat) {
                 errors.passwordRepeat = t('Password mismatch');
-            } else if (name === 'passwordRepeat' && value !== this.state.password){
+            } else if (name === 'passwordRepeat' && value !== this.state.password) {
                 errors.passwordRepeat = t('Password mismatch');
             } else {
                 errors.passwordRepeat = undefined;
@@ -42,6 +44,9 @@ class UserSignupPage extends Component{
         //browser'in bizim yerimize birşey yapmasını engelliyoruz.
         event.preventDefault();
 
+        const {history, dispatch} = this.props;
+        const {push} = history;
+
         const {username, displayName, password} = this.state;
 
         const body = {      //json objesi
@@ -51,14 +56,14 @@ class UserSignupPage extends Component{
         };
         //this.setState({pendingApiCall: true});
 
-        try{
-            const response = await signup(body);
-        }   catch (error){
-            if(error.response.data.validationErrors){
-                this.setState({ errors: error.response.data.validationErrors});
+        try {
+            await dispatch(signupHandler(body));
+            push('/');
+        } catch (error) {
+            if (error.response.data.validationErrors) {
+                this.setState({errors: error.response.data.validationErrors});
             }
         }
-
         //this.setState({pendingApiCall: false});
         /*signup(body)
             .then(response => {
@@ -100,17 +105,17 @@ class UserSignupPage extends Component{
         const {t, pendingApiCall} = this.props;
         const {errors} = this.state;
         const {username, displayName, password, passwordRepeat} = errors;
-        return(
+        return (
             <div className="container">
                 <form>
                     <h1 className="text-center"> {t("Sign Up")}</h1>
-                    <Input name="username" label={t("Username")} error={username} onChange={this.onChange} />
+                    <Input name="username" label={t("Username")} error={username} onChange={this.onChange}/>
                     {/*<div className="mb-3">
                         <label className="form-label">Username</label>
                         <input className={username ? "form-control is-invalid" : "form-control"} autoComplete="none" name="username" onChange={this.onChange} />
                         <div className="invalid-feedback">{username}</div>
                     </div>*/}
-                    <Input name="displayName" label={t("Display Name")} error={displayName} onChange={this.onChange} />
+                    <Input name="displayName" label={t("Display Name")} error={displayName} onChange={this.onChange}/>
                     {/*<div className="mb-3">
                     <label>Display Name</label>
                     <input className={displayName ? "form-control is-invalid" : "form-control"} autoComplete="none" name="displayName" onChange={this.onChange}/>
@@ -121,7 +126,8 @@ class UserSignupPage extends Component{
                     <label>Password</label>
                     <input className="form-control" name="password" onChange={this.onChange} type="password"/>
                 </div>*/}
-                    <InputPass name="passwordRepeat" label={t("Password Repeat")} error={passwordRepeat} onChange={this.onChange}/>
+                    <InputPass name="passwordRepeat" label={t("Password Repeat")} error={passwordRepeat}
+                               onChange={this.onChange}/>
                     {/*<div className="mb-3">
                     <label>Password Repeat</label>
                     <input className="form-control" name="passwordRepeat" onChange={this.onChange} type="password"/>
@@ -153,11 +159,13 @@ class UserSignupPage extends Component{
                     </div>*/}
                 </form>
             </div>
-            );
-        }
+        );
     }
-// High order Component uygulamsı ile UserSignupPage'i translation ile mixledik.
-const UserSignupPageWithApiProgress = withApiProgress(UserSignupPage, '/api/1.0/users')
-const UserSignupPageWithTranslation = withTranslation()(UserSignupPageWithApiProgress);
+}
 
-export default UserSignupPageWithTranslation;
+// High order Component uygulamsı ile UserSignupPage'i translation ile mixledik.
+const UserSignupPageWithApiProgressForSignupRequest = withApiProgress(UserSignupPage, '/api/1.0/users');
+const UserSignupPageWithApiProgressForAuthRequest = withApiProgress(UserSignupPageWithApiProgressForSignupRequest, '/api/1.0/auth');
+const UserSignupPageWithTranslation = withTranslation()(UserSignupPageWithApiProgressForAuthRequest);
+
+export default connect()(UserSignupPageWithTranslation);
